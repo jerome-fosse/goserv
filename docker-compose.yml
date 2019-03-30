@@ -1,0 +1,15 @@
+version: '3'
+services:
+  mariadb:
+    image: "mariadb:10.3.13-bionic"
+    container_name: musicdb
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpass
+      - MYSQL_DATABASE=music
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=userpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mariadb:/docker-entrypoint-initdb.d
+    #command: ["--bind-address=127.0.0.1"]
