@@ -15,7 +15,7 @@ CREATE TABLE records (
     id INT NOT NULL AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
     id_artist INT,
-    year DECIMAL UNSIGNED,
+    year DECIMAL(4) UNSIGNED,
     genre VARCHAR(255),
     support VARCHAR(30),
     nb_support DECIMAL UNSIGNED,
@@ -30,9 +30,10 @@ CREATE TABLE records (
 CREATE TABLE tracks (
     id INT NOT NULL AUTO_INCREMENT,
     id_record INT NOT NULL,
-    number DECIMAL UNSIGNED NOT NULL,
+    number DECIMAL(3) UNSIGNED NOT NULL,
     title VARCHAR(255) NOT NULL,
-    nb_support DECIMAL UNSIGNED,
+    length DECIMAL(4) UNSIGNED,
+    nb_support DECIMAL(2) UNSIGNED,
     PRIMARY KEY (id),
     CONSTRAINT fk_record
         FOREIGN KEY (id_record) REFERENCES records (id)
