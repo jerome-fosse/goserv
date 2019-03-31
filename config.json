@@ -7,6 +7,6 @@
         "dbname": "music"
     },
     "logging": {
-        "level": "DEBUG"
+        "level": "TRACE"
     }
 }

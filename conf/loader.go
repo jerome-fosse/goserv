@@ -1,4 +1,4 @@
-package configuration
+package conf
 
 import (
 	"encoding/json"
@@ -26,6 +26,7 @@ func parseJSONConfiguration(file *os.File) Configuration {
 	var config Configuration
 	jsonParser := json.NewDecoder(file)
 	jsonParser.Decode(&config)
+	log.SetLevel(config.Logging.LogLevel())
 
 	return config
 }
