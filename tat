@@ -1,0 +1,41 @@
+[33mcommit 3735622338610d6596d3fc3c3ac99bb05a799221[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: Jerome Fosse <jerome@fosse.nom.fr>
+Date:   Mon Apr 1 15:15:21 2019 +0200
+
+    First service getArtistById done
+
+[33mcommit d7a9e945cb436e63f7324e6edb543796493a2b83[m
+Author: Jerome Fosse <jfosse.prestataire@oui.sncf>
+Date:   Mon Apr 1 10:22:54 2019 +0200
+
+    switching to 127.0.0.1 for the mariadb ip
+
+[33mcommit 2ca3bbec226fa1f81b64e2fb05d0b86aa7b88f6b[m
+Author: Jerome Fosse <jerome@fosse.nom.fr>
+Date:   Mon Apr 1 01:55:32 2019 +0200
+
+    GetArtistById
+
+[33mcommit 8a335389016540fb86ebf7a1e733141fc923cd00[m
+Author: Jerome Fosse <jerome@fosse.nom.fr>
+Date:   Sun Mar 31 19:14:54 2019 +0200
+
+    Logging and Configuration
+
+[33mcommit 39e9e9097e1db9b4d300e93f7c7efa7e2d4dd1bd[m
+Author: Jerome Fosse <jerome@fosse.nom.fr>
+Date:   Sun Mar 31 13:48:59 2019 +0200
+
+    database : forgot the tracks length
+
+[33mcommit 470564b2c579d1c63d980e203fa2c99da367875d[m
+Author: Jerome Fosse <jerome@fosse.nom.fr>
+Date:   Sun Mar 31 03:30:34 2019 +0200
+
+    db schema + datas
+
+[33mcommit a6896b7163e6581919e96480b0fbdf3e4d764d4c[m
+Author: Jerome Fosse <jerome@fosse.nom.fr>
+Date:   Sat Mar 30 21:37:05 2019 +0100
+
+    first commit
