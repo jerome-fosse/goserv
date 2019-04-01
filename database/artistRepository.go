@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -15,9 +15,12 @@ func NewArtistRepository(db *sql.DB) *ArtistRepository {
 }
 
 func (repository ArtistRepository) FindArtistByID(id int) (*Artist, error) {
-	log.Debug(fmt.Sprintf("findArtistById : %d", id))
-	row := repository.db.QueryRow("Select id, name, country from Artists where id = ?", id)
+	log.Debug("ArtistRepository.FindArtistByID - ID = ", id)
+	row := repository.db.QueryRow("SELECT id, name, country FROM artists WHERE id = ?", id)
 	artist := new(Artist)
 	err := row.Scan(&artist.ID, &artist.Name, &artist.Country)
+	if err != nil {
+		log.Error("ArtistRepository.FindArtistByID - ", err)
+	}
 	return artist, err
 }

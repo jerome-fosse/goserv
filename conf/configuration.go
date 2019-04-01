@@ -2,8 +2,13 @@ package conf
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/sirupsen/logrus"
 )
+
+var log = logrus.WithFields(logrus.Fields{
+	"package": "conf",
+})
 
 // Configuration is a structure containing the configuuration of the application
 type Configuration struct {
@@ -32,11 +37,14 @@ func (c Configuration) ToString() string {
 	return fmt.Sprint(conflines)
 }
 
-func (l logging) LogLevel() log.Level {
-	lvl, err := log.ParseLevel(l.Level)
+func (l logging) LogLevel() logrus.Level {
+	lvl, err := logrus.ParseLevel(l.Level)
 	if err != nil {
-		log.Error(l.Level + " is not a valid level. INFO will be used.")
-		return log.InfoLevel
+		log.WithFields(logrus.Fields{
+			"function": "LogLevel",
+			"level":    l.Level,
+		}).Error("Not a valid level. INFO will be used.")
+		return logrus.InfoLevel
 	}
 	return lvl
 }
