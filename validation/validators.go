@@ -21,16 +21,16 @@ func ValidateArtistRequest(r *http.Request) (database.Artist, error) {
 	}
 
 	opts := govalidator.Options{
-		Request: r,
-		Data: &artist,
-		Rules: rules,
+		Request:  r,
+		Data:     &artist,
+		Rules:    rules,
 		Messages: messages,
 	}
 
-	v :=govalidator.New(opts)
+	v := govalidator.New(opts)
 	e := v.ValidateJSON()
 	if len(e) > 0 {
-		return artist, errors.New()
+		return artist, errors.New(e.Encode())
 	} else {
 		return artist, nil
 	}
