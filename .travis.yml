@@ -1,4 +1,14 @@
 language: go
+
 go:
   - 1.12.x
+
 go_import_path: github.com/object-it/tinyserv
+
+before_install:
+  - go get github.com/sirupsen/logrus
+  - go get github.com/gorilla/mux
+  - go get github.com/go-sql-driver/mysql
+
+script:
+  - go test ./...
