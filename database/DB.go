@@ -20,9 +20,8 @@ func OpenConnection(c conf.Configuration) *sql.DB {
 		log.Fatal("DB.OpenConnection - ", err)
 	}
 
-	err2 := db.Ping()
-	if err2 != nil {
-		log.Fatal("DB.OpenConnection - ", err2)
+	if err:= db.Ping(); err != nil {
+		log.Fatal("DB.OpenConnection - ", err)
 	}
 
 	return db

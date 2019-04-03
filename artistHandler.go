@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
+	"github.com/object-it/tinyserv/database"
 	"github.com/object-it/tinyserv/net/xhttp"
-	"github.com/object-it/tinyserv/validation"
 	log "github.com/sirupsen/logrus"
+	"io"
 	"net/http"
 	"strconv"
 )
@@ -33,10 +35,23 @@ func (s *Server) HandleArtistById(w http.ResponseWriter, r *http.Request) {
 func (s *Server) postArtist(w http.ResponseWriter, r *http.Request) {
 	log.Info("ArtistHandler.postArtist")
 
-	artist, err := validation.ValidateArtistRequest(r)
-	if err != nil {
-		log.Error("ArtistHandler.postArtist - Payload invalid. ", err)
-		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain,}, w, r)
+	artist := new(database.NewArtist)
+	buffer := make([]byte, r.ContentLength)
+	if _, err := r.Body.Read(buffer); err != nil && err != io.EOF {
+		log.Error("ArtistHandler.postArtist - Unable to read Json message. ", err)
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain},w, r)
+		return
+	}
+
+	if err := json.Unmarshal(buffer, &artist); err != nil {
+		log.Error("ArtistHandler.postArtist - Unable to parse Json message. ", err)
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain},w, r)
+		return
+	}
+
+	if _, err := govalidator.ValidateStruct(artist); err != nil {
+		log.Error("ArtistHandler.postArtist - Unable to validate Json message. ", err)
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain},w, r)
 		return
 	}
 
@@ -48,25 +63,25 @@ func (s *Server) getArtistByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		msg := "ID should be a number"
-		log.Error(fmt.Sprintf("Server.getArtistById - %s. %s", msg, err))
+		log.Error(fmt.Sprintf("ArtistHandler.getArtistById - %s. %s", msg, err))
 		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(msg), ContentType: xhttp.ContentTypeTextPlain}, w, r)
 		return
 	}
 
 	a, err := s.ArtistService.FindArtistById(id)
 	if err == sql.ErrNoRows {
-		log.Error(fmt.Sprintf("Server.getArtistById - Artist with ID %d not found.", id))
+		log.Error(fmt.Sprintf("ArtistHandler.getArtistById - Artist with ID %d not found.", id))
 		http.NotFound(w, r)
 		return
 	} else if err != nil {
-		log.Error("Server.getArtistById - Unexpected error.", err)
+		log.Error("ArtistHandler.getArtistById - Unexpected error.", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	bytes, err := json.Marshal(a)
 	if err != nil {
-		log.Error("Server.getArtistById - Unexpected error. ", err)
+		log.Error("ArtistHandler.getArtistById - Unexpected error. ", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

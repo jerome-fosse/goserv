@@ -13,10 +13,7 @@ import (
 var server Server
 
 func init() {
-	log.Info("Server - Initializing tinyserv...")
 	c := conf.Load()
-	log.Debug("Server - Loading Configuration : " + c.ToString())
-
 	db := database.OpenConnection(c)
 
 	server = Server{
@@ -32,9 +29,9 @@ func main() {
 
 	srv := http.Server{
 		Addr: "localhost:8080",
+		Handler: server.routes(),
 	}
-
-	http.Handle("/", server.routes())
 	srv.RegisterOnShutdown(server.shutdown)
-	srv.ListenAndServe()
+
+	log.Fatal(srv.ListenAndServe())
 }

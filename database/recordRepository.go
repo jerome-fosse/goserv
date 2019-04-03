@@ -22,12 +22,11 @@ func (r *RecordRepository) FindRecordByID(id int) (*Record, error) {
 			"FROM records rec LEFT JOIN tracks tra on rec.id = tra.id_record "+
 			"WHERE rec.id = ? "+
 			"ORDER BY tra.number ASC", id)
-	defer rows.Close()
-
 	if err != nil {
 		log.Error("RecordRepository.FindRecordByID - ", err)
 		return nil, err
 	}
+	defer rows.Close()
 
 	return r.parseRowsAsRecord(rows)
 }
@@ -38,9 +37,8 @@ func (r *RecordRepository) parseRowsAsRecord(rows *sql.Rows) (*Record, error) {
 
 	for rows.Next() {
 		track := new(Track)
-		err := rows.Scan(&record.ID, &record.Title, &record.Year, &record.Genre, &record.Support, &record.NbSupport, &record.Label,
-			&track.ID, &track.Number, &track.Title, &track.Length)
-		if err != nil {
+		if err := rows.Scan(&record.ID, &record.Title, &record.Year, &record.Genre, &record.Support, &record.NbSupport, &record.Label,
+			&track.ID, &track.Number, &track.Title, &track.Length); err != nil {
 			log.Error("RecordRepository.parseRowsAsRecord - ", err)
 			return nil, err
 		}

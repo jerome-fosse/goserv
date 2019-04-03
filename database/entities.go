@@ -1,9 +1,20 @@
 package database
 
+import "fmt"
+
 type Artist struct {
-	ID      int    `json:"id"`
+	ID      int64  `json:"id"`
 	Name    string `json:"name"`
 	Country string `json:"country"`
+}
+
+type NewArtist struct {
+	Name    string `json:"name" valid:"required~name is mandatory"`
+	Country string `json:"country" valid:"required~country is mandatory"`
+}
+
+func (a NewArtist) ToString() string {
+	return fmt.Sprintf("Artist: [Name = %s - Country = %s]", a.Name, a.Country)
 }
 
 type Record struct {
