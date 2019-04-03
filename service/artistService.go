@@ -19,7 +19,7 @@ func (s ArtistService) FindArtistById(id int) (*database.Artist, error) {
 	return s.repository.FindArtistByID(id)
 }
 
-func (s ArtistService) SaveNewArtist(a database.NewArtist) (*database.Artist, error) {
+func (s ArtistService) SaveNewArtist(a *database.NewArtist) (*database.Artist, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		log.Error("ArtistService.SaveNewArtist - Database error : ", err)
@@ -27,13 +27,16 @@ func (s ArtistService) SaveNewArtist(a database.NewArtist) (*database.Artist, er
 		return nil, err
 	}
 
-	artist, err := s.repository.Save(a)
+	artist, err := s.repository.Save(tx, *a)
+
 	if err != nil {
 		_ = tx.Rollback()
 		return nil, err
 	}
 
-	_ = tx.Commit()
+	if err = tx.Commit(); err != nil {
+		return nil, err
+	}
 
 	return artist, nil
 }

@@ -17,6 +17,7 @@ func NewArtistRepository(db *sql.DB) *ArtistRepository {
 
 func (repository ArtistRepository) FindArtistByID(id int) (*Artist, error) {
 	log.Debug("ArtistRepository.FindArtistByID - ID = ", id)
+
 	row := repository.db.QueryRow("SELECT id, name, country FROM artists WHERE id = ?", id)
 	artist := new(Artist)
 	err := row.Scan(&artist.ID, &artist.Name, &artist.Country)
@@ -26,14 +27,15 @@ func (repository ArtistRepository) FindArtistByID(id int) (*Artist, error) {
 	return artist, err
 }
 
-func (repository ArtistRepository) Save(artist NewArtist) (*Artist, error) {
+func (repository ArtistRepository) Save(tx *sql.Tx, artist NewArtist) (*Artist, error) {
 	log.Debug("ArtistRepository.Save - ", artist.ToString())
-	result, err := repository.db.Exec("INSERT INTO artists (name, country) VALUES (?, ?)", artist.Name, artist.Country)
+
+	result, err := tx.Exec("INSERT INTO artists (name, country) VALUES (?, ?)", artist.Name, artist.Country)
 	if err != nil {
 		log.Error(fmt.Sprintf("ArtistRepository.Save - Error while saving %s. ", artist.ToString()), err)
 		return nil, err
 	}
 
-	newid, _ := result.LastInsertId()
-	return &Artist{ID: newid, Name: artist.Name, Country: artist.Country}, nil
+	id, _ := result.LastInsertId()
+	return &Artist{ID: id, Name: artist.Name, Country: artist.Country}, nil
 }

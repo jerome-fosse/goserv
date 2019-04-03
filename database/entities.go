@@ -8,6 +8,10 @@ type Artist struct {
 	Country string `json:"country"`
 }
 
+func (a Artist) ToString() string {
+	return fmt.Sprintf("Artist: [ID = %d - Name = %s - Country = %s]", a.ID, a.Name, a.Country)
+}
+
 type NewArtist struct {
 	Name    string `json:"name" valid:"required~name is mandatory"`
 	Country string `json:"country" valid:"required~country is mandatory"`

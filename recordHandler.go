@@ -16,7 +16,7 @@ func (s *Server) HandleRecordById(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		s.getRecordByID(w, r)
 	default:
-		xhttp.MethodNotAllowed(w, r)
+		xhttp.MethodNotAllowed(w)
 	}
 }
 
@@ -26,7 +26,7 @@ func (s *Server) getRecordByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		msg := "ID should be a number"
 		log.Error(fmt.Sprintf("Server.getRecordByID - %s. %s", msg, err))
-		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(msg), ContentType: xhttp.ContentTypeTextPlain}, w, r)
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(msg), ContentType: xhttp.ContentTypeTextPlain}, w)
 		return
 	}
 
@@ -48,5 +48,5 @@ func (s *Server) getRecordByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	xhttp.OK(xhttp.Response{Msg: bytes, ContentType: xhttp.ContentTypeApplicationJson}, w, r)
+	xhttp.OK(xhttp.Response{Msg: bytes, ContentType: xhttp.ContentTypeApplicationJson}, w)
 }
