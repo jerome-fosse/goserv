@@ -36,7 +36,7 @@ func (c Configuration) ToString() string {
 func (l logging) LogLevel() log.Level {
 	lvl, err := log.ParseLevel(l.Level)
 	if err != nil {
-		log.Error(fmt.Sprintf("%S is not a valid log level. INFO will be used.", l.Level))
+		log.Error(fmt.Sprintf("%s is not a valid log level. INFO will be used.", l.Level))
 		return log.InfoLevel
 	}
 	return lvl

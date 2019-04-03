@@ -9,7 +9,7 @@ before_install:
   - go get github.com/sirupsen/logrus
   - go get github.com/gorilla/mux
   - go get github.com/go-sql-driver/mysql
-  - go get github.com/thedevsaddam/govalidator
+  - go get github.com/asaskevich/govalidator
 
 script:
   - go test ./...
