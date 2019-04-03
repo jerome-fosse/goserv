@@ -28,7 +28,7 @@ func main() {
 	log.Info("Server - Starting tinyserv...")
 
 	srv := http.Server{
-		Addr: "localhost:8080",
+		Addr:    "localhost:8080",
 		Handler: server.routes(),
 	}
 	srv.RegisterOnShutdown(server.shutdown)

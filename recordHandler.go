@@ -11,8 +11,6 @@ import (
 	"strconv"
 )
 
-
-
 func (s *Server) HandleRecordById(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -21,7 +19,6 @@ func (s *Server) HandleRecordById(w http.ResponseWriter, r *http.Request) {
 		xhttp.MethodNotAllowed(w, r)
 	}
 }
-
 
 func (s *Server) getRecordByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -53,4 +50,3 @@ func (s *Server) getRecordByID(w http.ResponseWriter, r *http.Request) {
 
 	xhttp.OK(xhttp.Response{Msg: bytes, ContentType: xhttp.ContentTypeApplicationJson}, w, r)
 }
-

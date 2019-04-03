@@ -39,19 +39,19 @@ func (s *Server) postArtist(w http.ResponseWriter, r *http.Request) {
 	buffer := make([]byte, r.ContentLength)
 	if _, err := r.Body.Read(buffer); err != nil && err != io.EOF {
 		log.Error("ArtistHandler.postArtist - Unable to read Json message. ", err)
-		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain},w, r)
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w, r)
 		return
 	}
 
 	if err := json.Unmarshal(buffer, &artist); err != nil {
 		log.Error("ArtistHandler.postArtist - Unable to parse Json message. ", err)
-		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain},w, r)
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w, r)
 		return
 	}
 
 	if _, err := govalidator.ValidateStruct(artist); err != nil {
 		log.Error("ArtistHandler.postArtist - Unable to validate Json message. ", err)
-		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain},w, r)
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w, r)
 		return
 	}
 
@@ -88,4 +88,3 @@ func (s *Server) getArtistByID(w http.ResponseWriter, r *http.Request) {
 
 	xhttp.OK(xhttp.Response{Msg: bytes, ContentType: xhttp.ContentTypeApplicationJson}, w, r)
 }
-

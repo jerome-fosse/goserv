@@ -29,5 +29,3 @@ func (s *Server) shutdown() {
 	s.DB.Close()
 	log.Info("Server shutdown...")
 }
-
-
