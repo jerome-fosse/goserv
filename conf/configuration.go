@@ -22,8 +22,8 @@ type logging struct {
 	Level string `json:"level"`
 }
 
-// ToString create a string representation of the configuration
-func (c Configuration) ToString() string {
+// String create a string representation of the configuration
+func (c Configuration) String() string {
 	var conflines [2]string
 
 	conflines[0] = fmt.Sprintf("Database: [host: %s - port: %d - dbname: %s - user: %s - passord: %s]",
@@ -33,10 +33,11 @@ func (c Configuration) ToString() string {
 	return fmt.Sprint(conflines)
 }
 
+// LogLevel returns the logrus.level depending of what is in the config file
 func (l logging) LogLevel() log.Level {
 	lvl, err := log.ParseLevel(l.Level)
 	if err != nil {
-		log.Error(fmt.Sprintf("%s is not a valid log level. INFO will be used.", l.Level))
+		log.Errorf("%s is not a valid log level. INFO will be used.", l.Level)
 		return log.InfoLevel
 	}
 	return lvl

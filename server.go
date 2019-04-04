@@ -20,8 +20,8 @@ type Server struct {
 func (s *Server) routes() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/artist", s.HandleArtist)
-	r.HandleFunc("/artist/{id}", s.HandleArtistById)
-	r.HandleFunc("/record/{id}", s.HandleRecordById)
+	r.HandleFunc("/artist/{id}", s.HandleArtistByID)
+	r.HandleFunc("/record/{id}", s.HandleRecordByID)
 	return r
 }
 

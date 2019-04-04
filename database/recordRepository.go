@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"github.com/object-it/goserv/errors"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -10,10 +11,12 @@ type RecordRepository struct {
 	db *sql.DB
 }
 
+// NewRecordRepository create a new RecordRepository
 func NewRecordRepository(db *sql.DB) *RecordRepository {
 	return &RecordRepository{db}
 }
 
+// FindRecordByID does what it says
 func (r *RecordRepository) FindRecordByID(id int) (*Record, error) {
 	log.Info("RecordRepository.FindRecordByID - ID = ", id)
 	rows, err := r.db.Query(
@@ -23,8 +26,7 @@ func (r *RecordRepository) FindRecordByID(id int) (*Record, error) {
 			"WHERE rec.id = ? "+
 			"ORDER BY tra.number ASC", id)
 	if err != nil {
-		log.Error("RecordRepository.FindRecordByID - ", err)
-		return nil, err
+		return nil, errors.HandleError(log.Error, errors.New("RecordRepository.FindRecordByID", "Database error", err))
 	}
 	defer rows.Close()
 
@@ -34,15 +36,25 @@ func (r *RecordRepository) FindRecordByID(id int) (*Record, error) {
 func (r *RecordRepository) parseRowsAsRecord(rows *sql.Rows) (*Record, error) {
 	record := new(Record)
 	tracks := make([]*Track, 0)
+	var count int
 
 	for rows.Next() {
 		track := new(Track)
 		if err := rows.Scan(&record.ID, &record.Title, &record.Year, &record.Genre, &record.Support, &record.NbSupport, &record.Label,
 			&track.ID, &track.Number, &track.Title, &track.Length); err != nil {
-			log.Error("RecordRepository.parseRowsAsRecord - ", err)
-			return nil, err
+			return nil, errors.HandleError(log.Error, errors.New("RecordRepository.parseRowsAsRecord", "Error while reading data from db", err))
 		}
 		tracks = append(tracks, track)
+		count++
+	}
+
+	if count == 0 {
+		return nil, errors.HandleError(log.Error, errors.New("RecordRepository.parseRowsAsRecord", "Error while reading data from db", sql.ErrNoRows))
+	}
+
+	err := rows.Err()
+	if err != nil {
+		return nil, errors.HandleError(log.Error, errors.New("RecordRepository.parseRowsAsRecord", "Error while reading data from db", err))
 	}
 
 	record.Tracks = tracks

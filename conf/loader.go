@@ -11,7 +11,7 @@ import (
 func Load() Configuration {
 	log.Info("Server - Initializing tinyserv...")
 	config := loadConfigurationFile("config.json")
-	log.Debug("Server - Loading Configuration : " + config.ToString())
+	log.Debug("Server - Loading Configuration : " + config.String())
 	return config
 }
 

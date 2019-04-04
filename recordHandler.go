@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/object-it/goserv/errors"
 	"github.com/object-it/goserv/net/xhttp"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 )
 
-func (s *Server) HandleRecordById(w http.ResponseWriter, r *http.Request) {
+// HandleRecordByID handle request to path /record/{id}
+func (s *Server) HandleRecordByID(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		s.getRecordByID(w, r)
@@ -31,20 +33,21 @@ func (s *Server) getRecordByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	record, err := s.RecordService.FindRecordByID(id)
-	if err == sql.ErrNoRows {
-		log.Error(fmt.Sprintf("Server.getRecordByID - Record with ID %d not found.", id))
-		http.NotFound(w, r)
-		return
-	} else if err != nil {
-		log.Error("Server.getRecordByID - Unexpected error.", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	if err != nil {
+		switch errors.Cause(err) {
+		case sql.ErrNoRows:
+			http.NotFound(w, r)
+			return
+		default:
+			xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
+			return
+		}
 	}
 
 	bytes, err := json.Marshal(record)
 	if err != nil {
 		log.Error("Server.getRecordByID - Unexpected error. ", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
 		return
 	}
 

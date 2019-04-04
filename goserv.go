@@ -3,10 +3,10 @@ package main
 import (
 	"net/http"
 
-	"github.com/object-it/goserv/service"
-
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/object-it/goserv/conf"
 	"github.com/object-it/goserv/database"
+	"github.com/object-it/goserv/service"
 	log "github.com/sirupsen/logrus"
 )
 
