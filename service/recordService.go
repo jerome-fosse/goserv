@@ -3,7 +3,7 @@ package service
 import (
 	"database/sql"
 
-	"github.com/object-it/tinyserv/database"
+	"github.com/object-it/goserv/database"
 )
 
 type RecordService struct {

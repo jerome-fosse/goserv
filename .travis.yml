@@ -3,7 +3,7 @@ language: go
 go:
   - 1.12.x
 
-go_import_path: github.com/object-it/tinyserv
+go_import_path: github.com/object-it/goserv
 
 before_install:
   - go get github.com/sirupsen/logrus

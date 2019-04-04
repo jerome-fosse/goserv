@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/object-it/tinyserv/conf"
+	"github.com/object-it/goserv/conf"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -20,7 +20,7 @@ func OpenConnection(c conf.Configuration) *sql.DB {
 		log.Fatal("DB.OpenConnection - ", err)
 	}
 
-	if err:= db.Ping(); err != nil {
+	if err := db.Ping(); err != nil {
 		log.Fatal("DB.OpenConnection - ", err)
 	}
 

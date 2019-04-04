@@ -3,10 +3,10 @@ package main
 import (
 	"net/http"
 
-	"github.com/object-it/tinyserv/service"
+	"github.com/object-it/goserv/service"
 
-	"github.com/object-it/tinyserv/conf"
-	"github.com/object-it/tinyserv/database"
+	"github.com/object-it/goserv/conf"
+	"github.com/object-it/goserv/database"
 	log "github.com/sirupsen/logrus"
 )
 

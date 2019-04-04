@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/object-it/tinyserv/net/xhttp"
+	"github.com/object-it/goserv/net/xhttp"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"

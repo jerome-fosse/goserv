@@ -2,7 +2,7 @@ package service
 
 import (
 	"database/sql"
-	"github.com/object-it/tinyserv/database"
+	"github.com/object-it/goserv/database"
 	log "github.com/sirupsen/logrus"
 )
 

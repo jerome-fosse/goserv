@@ -2,12 +2,12 @@ package main
 
 import (
 	"database/sql"
-	"github.com/object-it/tinyserv/service"
+	"github.com/object-it/goserv/service"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
-	"github.com/object-it/tinyserv/conf"
+	"github.com/object-it/goserv/conf"
 )
 
 type Server struct {
