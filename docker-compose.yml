@@ -12,4 +12,5 @@ services:
       - "3306:3306"
     volumes:
       - ./mariadb:/docker-entrypoint-initdb.d
+      - ./mariadb-data:/var/lib/mysql
     #command: ["--bind-address=127.0.0.1"]

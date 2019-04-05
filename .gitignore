@@ -1,3 +1,9 @@
+# IntelliJ configuration files
 .idea
+
+# maridadb datas
+/mariadb-data
+
+# Compiled files
 /bin
 goserv
