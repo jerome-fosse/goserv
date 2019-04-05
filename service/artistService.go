@@ -41,3 +41,8 @@ func (s ArtistService) SaveNewArtist(a *database.NewArtist) (*database.Artist, e
 
 	return artist, nil
 }
+
+func (s ArtistService) FindArtistDiscography(id int) (*database.Discography, error) {
+	log.Debugf("ArtistService.FindArtistDiscography - ID = %d", id)
+	return s.repository.FindArtistDiscography(id)
+}

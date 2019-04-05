@@ -1,3 +1,4 @@
+// Important : pointers are used to manage null values. Don't know if it's the right thing to do
 package database
 
 import "fmt"
@@ -37,4 +38,11 @@ type Track struct {
 	Number int    `json:"number"`
 	Title  string `json:"title"`
 	Length *int   `json:"length"`
+}
+
+type Discography struct {
+	ID      int64    `json:"id"`
+	Name    string   `json:"name"`
+	Country string   `json:"country"`
+	Records []Record `json:"records"`
 }

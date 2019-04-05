@@ -36,6 +36,16 @@ func (s *Server) HandleArtistByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// HandleArtistDiscography request to path /artist/{id}/discography
+func (s *Server) HandleArtistDiscography(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		s.getArtistDiscography(w, r)
+	default:
+		xhttp.MethodNotAllowed(w)
+	}
+}
+
 func (s *Server) postArtist(w http.ResponseWriter, r *http.Request) {
 	log.Info("ArtistHandler.postArtist")
 
@@ -95,6 +105,38 @@ func (s *Server) getArtistByID(w http.ResponseWriter, r *http.Request) {
 	bytes, err := json.Marshal(a)
 	if err != nil {
 		log.Error("ArtistHandler.getArtistById - Unexpected error. ", err)
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
+		return
+	}
+
+	xhttp.OK(xhttp.Response{Msg: bytes, ContentType: xhttp.ContentTypeApplicationJson}, w)
+}
+
+func (s *Server) getArtistDiscography(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		msg := "ID should be a number"
+		log.Error(fmt.Sprintf("ArtistHandler.getArtistDiscography - %s. %s", msg, err))
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(msg), ContentType: xhttp.ContentTypeTextPlain}, w)
+		return
+	}
+
+	d, err := s.ArtistService.FindArtistDiscography(id)
+	if err != nil {
+		switch errors.Cause(err) {
+		case sql.ErrNoRows:
+			http.NotFound(w, r)
+			return
+		default:
+			xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
+			return
+		}
+	}
+
+	bytes, err := json.Marshal(d)
+	if err != nil {
+		log.Error("ArtistHandler.getArtistDiscography - Unexpected error. ", err)
 		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
 		return
 	}

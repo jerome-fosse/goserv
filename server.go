@@ -21,6 +21,7 @@ func (s *Server) routes() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/artist", s.HandleArtist)
 	r.HandleFunc("/artist/{id}", s.HandleArtistByID)
+	r.HandleFunc("/artist/{id}/discography", s.HandleArtistDiscography)
 	r.HandleFunc("/record/{id}", s.HandleRecordByID)
 	return r
 }
