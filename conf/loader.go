@@ -9,19 +9,23 @@ import (
 
 // Load load the configuration from the config file
 func Load() Configuration {
-	log.Info("Server - Initializing tinyserv...")
+	log.Info("Initializing goserv...")
 	config := loadConfigurationFile("config.json")
-	log.Debug("Server - Loading Configuration : " + config.String())
+	log.Debugf("Loading Configuration : %s", config.String())
 	return config
 }
 
 func loadConfigurationFile(filename string) Configuration {
 	file, err := os.Open(filename)
 	if err != nil {
-		log.Fatal("conf.loadConfigurationFile - Unable to load configuration file. ", err)
+		log.Fatal("Unable to load configuration file. ", err)
 	}
 
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Errorf("Unexpected error : %s", err.Error())
+		}
+	}()
 
 	return parseJSONConfiguration(file)
 }

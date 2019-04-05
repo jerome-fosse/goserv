@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/object-it/goserv/errors"
 	"github.com/object-it/goserv/net/xhttp"
@@ -27,10 +26,12 @@ func (s *Server) getRecordByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		msg := "ID should be a number"
-		log.Error(fmt.Sprintf("Server.getRecordByID - %s. %s", msg, err))
+		log.Errorf("HandleRecord.getRecordByID - %s. %s", msg, err)
 		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(msg), ContentType: xhttp.ContentTypeTextPlain}, w)
 		return
 	}
+
+	log.Infof("HandleRecord.getRecordByID - ID = %d", id)
 
 	record, err := s.RecordService.FindRecordByID(id)
 	if err != nil {

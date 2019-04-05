@@ -25,7 +25,7 @@ func init() {
 }
 
 func main() {
-	log.Info("Server - Starting tinyserv...")
+	log.Info("Server - Starting goserv...")
 
 	srv := http.Server{
 		Addr:    "localhost:8080",

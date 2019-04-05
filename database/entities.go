@@ -1,16 +1,17 @@
-// Important : pointers are used to manage null values. Don't know if it's the right thing to do
 package database
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Artist struct {
-	ID      int64  `json:"id"`
-	Name    string `json:"name"`
-	Country string `json:"country"`
+	ID      int64      `json:"id"`
+	Name    string     `json:"name"`
+	Country NullString `json:"country"`
 }
 
 func (a Artist) String() string {
-	return fmt.Sprintf("Artist: [ID = %d - Name = %s - Country = %s]", a.ID, a.Name, a.Country)
+	return fmt.Sprintf("Artist: [ID = %d - Name = %s - Country = %s]", a.ID, a.Name, a.Country.String)
 }
 
 type NewArtist struct {
@@ -23,26 +24,26 @@ func (a NewArtist) String() string {
 }
 
 type Record struct {
-	ID        int      `json:"id"`
-	Title     string   `json:"title"`
-	Year      *int     `json:"year"`
-	Genre     *string  `json:"genre"`
-	Support   *string  `json:"support"`
-	NbSupport *int     `json:"nb_supports"`
-	Label     *string  `json:"label"`
-	Tracks    []*Track `json:"tracks"`
+	ID        int64      `json:"id"`
+	Title     string     `json:"title"`
+	Year      NullInt64  `json:"year"`
+	Genre     NullString `json:"genre"`
+	Support   NullString `json:"support"`
+	NbSupport NullInt64  `json:"nb_supports"`
+	Label     NullString `json:"label"`
+	Tracks    []Track    `json:"tracks"`
 }
 
 type Track struct {
-	ID     int    `json:"id"`
-	Number int    `json:"number"`
-	Title  string `json:"title"`
-	Length *int   `json:"length"`
+	ID     int64     `json:"id"`
+	Number int64     `json:"number"`
+	Title  string    `json:"title"`
+	Length NullInt64 `json:"length"`
 }
 
 type Discography struct {
-	ID      int64    `json:"id"`
-	Name    string   `json:"name"`
-	Country string   `json:"country"`
-	Records []Record `json:"records"`
+	ID      int64      `json:"id"`
+	Name    string     `json:"name"`
+	Country NullString `json:"country"`
+	Records []Record   `json:"records"`
 }

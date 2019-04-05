@@ -18,7 +18,8 @@ func NewRecordRepository(db *sql.DB) *RecordRepository {
 
 // FindRecordByID does what it says
 func (r *RecordRepository) FindRecordByID(id int) (*Record, error) {
-	log.Info("RecordRepository.FindRecordByID - ID = ", id)
+	log.Debugf("RecordRepository.FindRecordByID - ID = %d", id)
+
 	rows, err := r.db.Query(
 		"SELECT rec.id, rec.title, rec.year, rec.genre, rec.support, rec.nb_support, rec.label, "+
 			"tra.id as id_track, tra.number, tra.title, tra.length "+
@@ -35,7 +36,7 @@ func (r *RecordRepository) FindRecordByID(id int) (*Record, error) {
 
 func (r *RecordRepository) parseRowsAsRecord(rows *sql.Rows) (*Record, error) {
 	record := new(Record)
-	tracks := make([]*Track, 0)
+	tracks := make([]Track, 0)
 	var count int
 
 	for rows.Next() {
@@ -44,7 +45,7 @@ func (r *RecordRepository) parseRowsAsRecord(rows *sql.Rows) (*Record, error) {
 			&track.ID, &track.Number, &track.Title, &track.Length); err != nil {
 			return nil, errors.HandleError(log.Error, errors.New("RecordRepository.parseRowsAsRecord", "Error while reading data from db", err))
 		}
-		tracks = append(tracks, track)
+		tracks = append(tracks, *track)
 		count++
 	}
 

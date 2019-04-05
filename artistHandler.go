@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 	"github.com/object-it/goserv/database"
@@ -76,7 +75,7 @@ func (s *Server) postArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info("ArtistHandler.postArtist - saved : " + a.String())
+	log.Infof("ArtistHandler.postArtist - saved : %s", a.String())
 	xhttp.Created(xhttp.Response{Location: "/artist/" + strconv.FormatInt(a.ID, 10)}, w)
 }
 
@@ -85,10 +84,12 @@ func (s *Server) getArtistByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		msg := "ID should be a number"
-		log.Error(fmt.Sprintf("ArtistHandler.getArtistById - %s. %s", msg, err))
+		log.Errorf("ArtistHandler.getArtistById - %s. %s", msg, err)
 		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(msg), ContentType: xhttp.ContentTypeTextPlain}, w)
 		return
 	}
+
+	log.Infof("ArtistHandler.getArtistById - ID = %d", id)
 
 	a, err := s.ArtistService.FindArtistById(id)
 	if err != nil {
@@ -117,10 +118,12 @@ func (s *Server) getArtistDiscography(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		msg := "ID should be a number"
-		log.Error(fmt.Sprintf("ArtistHandler.getArtistDiscography - %s. %s", msg, err))
+		log.Errorf("ArtistHandler.getArtistDiscography - %s. %s", msg, err)
 		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(msg), ContentType: xhttp.ContentTypeTextPlain}, w)
 		return
 	}
+
+	log.Infof("ArtistHandler.getArtistDiscography - Artist ID = %d", id)
 
 	d, err := s.ArtistService.FindArtistDiscography(id)
 	if err != nil {
