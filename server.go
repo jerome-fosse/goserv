@@ -11,10 +11,10 @@ import (
 )
 
 type Server struct {
-	Config        conf.Configuration
-	DB            *sql.DB
-	ArtistService *service.ArtistService
-	RecordService *service.RecordService
+	config        conf.Configuration
+	db            *sql.DB
+	artistService *service.ArtistService
+	recordService *service.RecordService
 }
 
 func (s *Server) routes() *mux.Router {
@@ -30,6 +30,6 @@ func (s *Server) routes() *mux.Router {
 }
 
 func (s *Server) shutdown() {
-	s.DB.Close()
+	s.db.Close()
 	log.Info("Server shutdown...")
 }

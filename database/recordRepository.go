@@ -69,6 +69,17 @@ func (r *RecordRepository) FindRecordByID(id int) (*Record, error) {
 	return r.parseRowsAsRecord(rows)
 }
 
+// Delete supprimer un record et toutes ses tracks
+func (r *RecordRepository) Delete(tx *sql.Tx, id int) error {
+	log.Debugf("RecordRepository.Delete - ID = %d", id)
+
+	if _, err := tx.Exec("DELETE FROM records WHERE id = ?", id); err != nil {
+		return errors.HandleError(log.Error, errors.New("RecordRepository.Delete", "Database error", err))
+	}
+
+	return nil
+}
+
 func (r *RecordRepository) parseRowsAsRecord(rows *sql.Rows) (*Record, error) {
 	record := new(Record)
 	tracks := make([]Track, 0)

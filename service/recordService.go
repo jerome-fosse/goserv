@@ -24,6 +24,26 @@ func (s RecordService) FindRecordByID(id int) (*database.Record, error) {
 	return s.recordRepo.FindRecordByID(id)
 }
 
+func (s RecordService) DeleteRecord(id int) error {
+	log.Debugf("RecordService.DeleteRecord - ID = %d", id)
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return errors.HandleError(log.Error, errors.New("RecordService.DeleteRecord", "Database error", err))
+	}
+
+	if err := s.recordRepo.Delete(tx, id); err != nil {
+		_ = tx.Rollback()
+		return errors.HandleError(log.Error, errors.New("RecordService.DeleteRecord", "Database error", err))
+	}
+
+	if err := tx.Commit(); err != nil {
+		return errors.HandleError(log.Error, errors.New("RecordService.DeleteRecord", "Database error", err))
+	}
+
+	return nil
+}
+
 func (s RecordService) SaveRecordForArtist(idArtist int, record *database.NewRecord) (int64, error) {
 	log.Debugf("RecordService.SaveRecordForArtist - ID = %d, Record = %s", idArtist, record)
 

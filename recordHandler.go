@@ -14,6 +14,8 @@ func (s *Server) HandleRecordByID(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		s.getRecordByID(w, r)
+	case http.MethodDelete:
+		s.deleteRecordByID(w, r)
 	default:
 		xhttp.MethodNotAllowed(w)
 	}
@@ -30,7 +32,7 @@ func (s *Server) getRecordByID(w http.ResponseWriter, r *http.Request) {
 
 	log.Infof("HandleRecord.getRecordByID - ID = %d", id)
 
-	record, err := s.RecordService.FindRecordByID(id)
+	record, err := s.recordService.FindRecordByID(id)
 	if err != nil {
 		switch errors.Cause(err) {
 		case sql.ErrNoRows:
@@ -50,4 +52,23 @@ func (s *Server) getRecordByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	xhttp.OK(xhttp.Response{Msg: bytes, ContentType: xhttp.ContentTypeApplicationJson}, w)
+}
+
+// DELETE /record/{id}
+func (s *Server) deleteRecordByID(w http.ResponseWriter, r *http.Request) {
+	var id int
+
+	if err := xhttp.ReadRequestVar(r, "id", &id); err != nil {
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
+		return
+	}
+
+	log.Infof("HandleRecord.deleteRecordByID - ID = %d", id)
+
+	if err := s.recordService.DeleteRecord(id); err != nil {
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
+		return
+	}
+
+	xhttp.NoContent(w)
 }

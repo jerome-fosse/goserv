@@ -61,3 +61,8 @@ func Created(resp Response, w http.ResponseWriter) {
 	}
 	w.WriteHeader(http.StatusCreated)
 }
+
+func NoContent(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusNoContent)
+
+}

@@ -16,10 +16,10 @@ func init() {
 	db := database.OpenConnection(c)
 
 	server = Server{
-		Config:        c,
-		DB:            db,
-		ArtistService: service.NewArtistService(db),
-		RecordService: service.NewRecordService(db),
+		config:        c,
+		db:            db,
+		artistService: service.NewArtistService(db),
+		recordService: service.NewRecordService(db),
 	}
 }
 

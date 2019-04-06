@@ -69,7 +69,7 @@ func (s *Server) postArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := s.ArtistService.SaveNewArtist(artist)
+	id, err := s.artistService.SaveNewArtist(artist)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -90,7 +90,7 @@ func (s *Server) getArtistByID(w http.ResponseWriter, r *http.Request) {
 
 	log.Infof("ArtistHandler.getArtistById - ID = %d", id)
 
-	a, err := s.ArtistService.FindArtistById(id)
+	a, err := s.artistService.FindArtistById(id)
 	if err != nil {
 		switch errors.Cause(err) {
 		case sql.ErrNoRows:
@@ -124,7 +124,7 @@ func (s *Server) getArtistRecords(w http.ResponseWriter, r *http.Request) {
 
 	log.Infof("ArtistHandler.getArtistRecords - Artist ID = %d", id)
 
-	d, err := s.ArtistService.FindArtistDiscography(id)
+	d, err := s.artistService.FindArtistDiscography(id)
 	if err != nil {
 		switch errors.Cause(err) {
 		case sql.ErrNoRows:
@@ -171,7 +171,7 @@ func (s *Server) postArtistRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	idr, err := s.RecordService.SaveRecordForArtist(id, record)
+	idr, err := s.recordService.SaveRecordForArtist(id, record)
 	if err != nil {
 		log.Error("RecordHandler.postArtistRecord - Unable to save record into db. ", err)
 		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
