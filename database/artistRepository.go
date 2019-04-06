@@ -31,17 +31,15 @@ func (r ArtistRepository) FindArtistByID(id int) (*Artist, error) {
 }
 
 // Save save an artist in the db
-func (r ArtistRepository) Save(tx *sql.Tx, artist NewArtist) (*Artist, error) {
-	log.Debugf("ArtistRepository.Save - %s", artist.String())
+func (r ArtistRepository) Save(tx *sql.Tx, artist NewArtist) (int64, error) {
+	log.Debugf("ArtistRepository.Save - %v", artist)
 
 	result, err := tx.Exec("INSERT INTO artists (name, country) VALUES (?, ?)", artist.Name, artist.Country)
 	if err != nil {
-		return nil, errors.HandleError(log.Error, errors.New("ArtistRepository.Save", fmt.Sprintf("Error while saving artist %s", artist.String()), err))
+		return -1, errors.HandleError(log.Error, errors.New("ArtistRepository.Save", fmt.Sprintf("Error while saving artist %v", artist), err))
 	}
 
-	id, _ := result.LastInsertId()
-
-	return &Artist{ID: id, Name: artist.Name, Country: NewNullString(artist.Country)}, nil
+	return result.LastInsertId() // err is always nil
 }
 
 func (r ArtistRepository) FindArtistDiscography(id int) (*Discography, error) {

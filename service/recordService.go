@@ -2,19 +2,60 @@ package service
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/object-it/goserv/database"
+	"github.com/object-it/goserv/errors"
 	log "github.com/sirupsen/logrus"
 )
 
 type RecordService struct {
-	repository *database.RecordRepository
+	db         *sql.DB
+	artistRepo *database.ArtistRepository
+	recordRepo *database.RecordRepository
 }
 
 func NewRecordService(db *sql.DB) *RecordService {
-	return &RecordService{database.NewRecordRepository(db)}
+	return &RecordService{db: db, artistRepo: database.NewArtistRepository(db),
+		recordRepo: database.NewRecordRepository(db)}
 }
 
-func (service RecordService) FindRecordByID(id int) (*database.Record, error) {
+func (s RecordService) FindRecordByID(id int) (*database.Record, error) {
 	log.Debugf("RecordService.FindRecordByID - ID = %d", id)
-	return service.repository.FindRecordByID(id)
+	return s.recordRepo.FindRecordByID(id)
+}
+
+func (s RecordService) SaveRecordForArtist(idArtist int, record *database.NewRecord) (int64, error) {
+	log.Debugf("RecordService.SaveRecordForArtist - ID = %d, Record = %s", idArtist, record)
+
+	_, err := s.artistRepo.FindArtistByID(idArtist)
+	if err != nil {
+		return -1, err
+	}
+
+	exist, err := s.recordRepo.ExistRecordByArtistIdAndTitle(idArtist, record.Title)
+	if err != nil {
+		return -1, err
+	}
+
+	if exist {
+		return -1, errors.HandleError(log.Error, errors.NewRootError("RecordService.SaveRecordForArtist",
+			fmt.Sprintf("The record %s already exist for artit with id %d", record.Title, idArtist)))
+	}
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return -1, errors.HandleError(log.Error, errors.New("RecordService.SaveRecordForArtist", "Database error", err))
+	}
+
+	idr, err := s.recordRepo.Save(tx, idArtist, record)
+	if err != nil {
+		_ = tx.Rollback()
+		return -1, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return -1, errors.HandleError(log.Error, errors.New("RecordService.SaveRecordForArtist", "Database error", err))
+	}
+
+	return idr, nil
 }

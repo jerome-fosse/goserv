@@ -3,15 +3,13 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"github.com/object-it/goserv/errors"
 	"github.com/object-it/goserv/net/xhttp"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"strconv"
 )
 
-// HandleRecordByID handle request to path /record/{id}
+// HandleRecordByID handler qui gère les requetes sur la ressource /record/{id}
 func (s *Server) HandleRecordByID(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -21,13 +19,12 @@ func (s *Server) HandleRecordByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GET /record/{id}
 func (s *Server) getRecordByID(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		msg := "ID should be a number"
-		log.Errorf("HandleRecord.getRecordByID - %s. %s", msg, err)
-		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(msg), ContentType: xhttp.ContentTypeTextPlain}, w)
+	var id int
+
+	if err := xhttp.ReadRequestVar(r, "id", &id); err != nil {
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
 		return
 	}
 

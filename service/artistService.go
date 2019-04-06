@@ -21,25 +21,25 @@ func (s ArtistService) FindArtistById(id int) (*database.Artist, error) {
 	return s.repository.FindArtistByID(id)
 }
 
-func (s ArtistService) SaveNewArtist(a *database.NewArtist) (*database.Artist, error) {
-	log.Debugf("ArtistService.SaveNewArtist - %s", a.String())
+func (s ArtistService) SaveNewArtist(a *database.NewArtist) (int64, error) {
+	log.Debugf("ArtistService.SaveNewArtist - %v", a)
 
 	tx, err := s.db.Begin()
 	if err != nil {
-		return nil, errors.HandleError(log.Error, errors.New("ArtistService.SaveNewArtist", "Database error", err))
+		return -1, errors.HandleError(log.Error, errors.New("ArtistService.SaveNewArtist", "Database error", err))
 	}
 
-	artist, err := s.repository.Save(tx, *a)
+	id, err := s.repository.Save(tx, *a)
 	if err != nil {
 		_ = tx.Rollback()
-		return nil, errors.HandleError(log.Error, errors.New("ArtistService.SaveNewArtist", "Database error", err))
+		return -1, err
 	}
 
 	if err = tx.Commit(); err != nil {
-		return nil, errors.HandleError(log.Error, errors.New("ArtistService.SaveNewArtist", "Database error", err))
+		return -1, errors.HandleError(log.Error, errors.New("ArtistService.SaveNewArtist", "Database error", err))
 	}
 
-	return artist, nil
+	return id, nil
 }
 
 func (s ArtistService) FindArtistDiscography(id int) (*database.Discography, error) {

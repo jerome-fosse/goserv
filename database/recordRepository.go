@@ -11,12 +11,47 @@ type RecordRepository struct {
 	db *sql.DB
 }
 
-// NewRecordRepository create a new RecordRepository
+// NewRecordRepository créé un nouveau RecordRepository
 func NewRecordRepository(db *sql.DB) *RecordRepository {
 	return &RecordRepository{db}
 }
 
-// FindRecordByID does what it says
+func (r *RecordRepository) Save(tx *sql.Tx, idArtist int, record *NewRecord) (int64, error) {
+	log.Debugf("RecordRepository.Save - ID = %d, Record = %s", idArtist, record)
+
+	r1, err := tx.Exec("INSERT INTO records(title, id_artist, year, genre, support, nb_support, label) "+
+		"VALUES(?, ?, ?, ?, ?, ?, ?)", record.Title, idArtist, record.Year, record.Genre, record.Support, record.NbSupport, record.Label)
+	if err != nil {
+		return -1, errors.HandleError(log.Error, errors.New("RecordRepository.Save", "database error", err))
+	}
+
+	idr, _ := r1.LastInsertId() // err toujours nil avec le driver mariadb
+	for _, t := range record.Tracks {
+		_, err := tx.Exec("INSERT INTO tracks (id_record, number, title, length) "+
+			"VALUES(?, ?, ?, ?)", idr, t.Number, t.Title, t.Length)
+		if err != nil {
+			return -1, errors.HandleError(log.Error, errors.New("RecordRepository.Save", "database error", err))
+		}
+	}
+
+	return r1.LastInsertId() // err toujours nil avec le driver mariadb
+}
+
+// ExistRecordByArtistIdAndTitle indique si il existe déjà un album du même titre pour le même artiste.
+func (r *RecordRepository) ExistRecordByArtistIdAndTitle(idArtist int, title string) (bool, error) {
+	log.Debugf("RecordRepository.ExistRecordByArtistIdAndTitle - ID = %d, Title = %s", idArtist, title)
+
+	var nb int64
+	row := r.db.QueryRow(" SELECT count(*) FROM records WHERE id_artist = ? AND title = ?", idArtist, title)
+	err := row.Scan(&nb)
+	if err != nil {
+		return true, errors.HandleError(log.Error, errors.New("RecordRepository.ExistRecordByArtistIdAndTitle", "Database error", err))
+	}
+
+	return nb > 0, nil
+}
+
+// FindRecordByID retour l'artiste dont l'id est passé en paramètre
 func (r *RecordRepository) FindRecordByID(id int) (*Record, error) {
 	log.Debugf("RecordRepository.FindRecordByID - ID = %d", id)
 

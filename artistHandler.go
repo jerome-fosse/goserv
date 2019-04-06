@@ -4,18 +4,15 @@ import (
 	"database/sql"
 	"encoding/json"
 	"github.com/asaskevich/govalidator"
-	"github.com/gorilla/mux"
 	"github.com/object-it/goserv/database"
 	"github.com/object-it/goserv/errors"
 	"github.com/object-it/goserv/net/xhttp"
 	log "github.com/sirupsen/logrus"
-	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 )
 
-// HandleArtist request to path /artist
+// HandleArtist gère les requetes sur l'url /artist
 func (s *Server) HandleArtist(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -25,7 +22,7 @@ func (s *Server) HandleArtist(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// HandleArtistByID request to path /artist/{id}
+// HandleArtistByID gère les requetes sur l'url /artist/{id}
 func (s *Server) HandleArtistByID(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -35,30 +32,33 @@ func (s *Server) HandleArtistByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// HandleArtistDiscography request to path /artist/{id}/discography
-func (s *Server) HandleArtistDiscography(w http.ResponseWriter, r *http.Request) {
+// HandleArtistRecords gère les requetes sur l'url /artist/{id}/records
+func (s *Server) HandleArtistRecords(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		s.getArtistDiscography(w, r)
+		s.getArtistRecords(w, r)
 	default:
 		xhttp.MethodNotAllowed(w)
 	}
 }
 
+// HandleArtistRecords gère les requetes sur l'url /artist/{id}/record
+func (s *Server) HandleArtistRecord(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		s.postArtistRecord(w, r)
+	default:
+		xhttp.MethodNotAllowed(w)
+	}
+}
+
+// POST /artist
 func (s *Server) postArtist(w http.ResponseWriter, r *http.Request) {
 	log.Info("ArtistHandler.postArtist")
 
 	artist := new(database.NewArtist)
 
-	buffer, err := ioutil.ReadAll(r.Body)
-	if err != nil && err != io.EOF {
-		log.Error("ArtistHandler.postArtist - Unable to read Json message. ", err)
-		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
-		return
-	}
-
-	if err := json.Unmarshal(buffer, &artist); err != nil {
-		log.Error("ArtistHandler.postArtist - Unable to parse Json message. ", err)
+	if err := xhttp.ReadBodyToJSON(r, artist); err != nil {
 		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
 		return
 	}
@@ -69,23 +69,22 @@ func (s *Server) postArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	a, err := s.ArtistService.SaveNewArtist(artist)
+	id, err := s.ArtistService.SaveNewArtist(artist)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	log.Infof("ArtistHandler.postArtist - saved : %s", a.String())
-	xhttp.Created(xhttp.Response{Location: "/artist/" + strconv.FormatInt(a.ID, 10)}, w)
+	log.Infof("ArtistHandler.postArtist - saved : Artist = %v, ID = %d", artist, id)
+	xhttp.Created(xhttp.Response{Location: "/artist/" + strconv.FormatInt(id, 10)}, w)
 }
 
+// GET /artist/{id}
 func (s *Server) getArtistByID(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		msg := "ID should be a number"
-		log.Errorf("ArtistHandler.getArtistById - %s. %s", msg, err)
-		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(msg), ContentType: xhttp.ContentTypeTextPlain}, w)
+	var id int
+
+	if err := xhttp.ReadRequestVar(r, "id", &id); err != nil {
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
 		return
 	}
 
@@ -113,17 +112,17 @@ func (s *Server) getArtistByID(w http.ResponseWriter, r *http.Request) {
 	xhttp.OK(xhttp.Response{Msg: bytes, ContentType: xhttp.ContentTypeApplicationJson}, w)
 }
 
-func (s *Server) getArtistDiscography(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		msg := "ID should be a number"
-		log.Errorf("ArtistHandler.getArtistDiscography - %s. %s", msg, err)
-		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(msg), ContentType: xhttp.ContentTypeTextPlain}, w)
+// GET /artist/{id}/records
+func (s *Server) getArtistRecords(w http.ResponseWriter, r *http.Request) {
+
+	var id int
+
+	if err := xhttp.ReadRequestVar(r, "id", &id); err != nil {
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
 		return
 	}
 
-	log.Infof("ArtistHandler.getArtistDiscography - Artist ID = %d", id)
+	log.Infof("ArtistHandler.getArtistRecords - Artist ID = %d", id)
 
 	d, err := s.ArtistService.FindArtistDiscography(id)
 	if err != nil {
@@ -139,10 +138,45 @@ func (s *Server) getArtistDiscography(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := json.Marshal(d)
 	if err != nil {
-		log.Error("ArtistHandler.getArtistDiscography - Unexpected error. ", err)
+		log.Error("ArtistHandler.getArtistRecords - Unexpected error. ", err)
 		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
 		return
 	}
 
 	xhttp.OK(xhttp.Response{Msg: bytes, ContentType: xhttp.ContentTypeApplicationJson}, w)
+}
+
+// POST /artist/{1}/record
+func (s *Server) postArtistRecord(w http.ResponseWriter, r *http.Request) {
+	var (
+		id     int
+		record = new(database.NewRecord)
+	)
+
+	if err := xhttp.ReadRequestVar(r, "id", &id); err != nil {
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
+		return
+	}
+
+	log.Infof("ArtistHandler.postArtistRecord - Artist ID = %d", id)
+
+	if err := xhttp.ReadBodyToJSON(r, record); err != nil {
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
+		return
+	}
+
+	if _, err := govalidator.ValidateStruct(record); err != nil {
+		log.Error("RecordHandler.postArtistRecord - Unable to validate Json message. ", err)
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
+		return
+	}
+
+	idr, err := s.RecordService.SaveRecordForArtist(id, record)
+	if err != nil {
+		log.Error("RecordHandler.postArtistRecord - Unable to save record into db. ", err)
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
+		return
+	}
+
+	xhttp.Created(xhttp.Response{Location: "/record/" + strconv.FormatInt(idr, 10), ContentType: xhttp.ContentTypeApplicationJson}, w)
 }

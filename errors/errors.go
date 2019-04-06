@@ -13,7 +13,11 @@ type errorApp struct {
 }
 
 func (e errorApp) Error() string {
-	return fmt.Sprintf("%s : %s - Caused by : %s", e.caller, e.msg, e.cause.Error())
+	if e.cause == nil {
+		return fmt.Sprintf("%s : %s", e.caller, e.msg)
+	} else {
+		return fmt.Sprintf("%s : %s - Caused by : %s", e.caller, e.msg, e.cause.Error())
+	}
 }
 
 func (e errorApp) Cause() error {
@@ -21,7 +25,11 @@ func (e errorApp) Cause() error {
 }
 
 func New(caller string, msg string, cause error) error {
-	return &errorApp{msg: msg, caller: caller, cause: cause}
+	return errorApp{msg: msg, caller: caller, cause: cause}
+}
+
+func NewRootError(caller string, msg string) error {
+	return errorApp{msg: msg, caller: caller}
 }
 
 func HandleError(f func(args ...interface{}), err error) error {

@@ -50,6 +50,6 @@ func (b NullBool) MarshalJSON() ([]byte, error) {
 	return []byte("null"), nil
 }
 
-func NewNullString(s string) NullString {
+func newNullString(s string) NullString {
 	return NullString{sql.NullString{String: s, Valid: true}}
 }

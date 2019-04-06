@@ -1,13 +1,12 @@
 package main
 
 import (
-	"net/http"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/object-it/goserv/conf"
 	"github.com/object-it/goserv/database"
 	"github.com/object-it/goserv/service"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 var server Server
