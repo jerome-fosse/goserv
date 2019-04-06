@@ -4,8 +4,10 @@ Microservice that expose a REST api to manage music records. This project is wri
 
 ## API
 * POST /artist
-* GET /artist/{id}
-* GET /record/{id}
+* GET  /artist/{id}
+* POST /artist/{id}/record
+* GET  /artist/{id}/records
+* GET  /record/{id}
 
 ## Database
 GOSERV use mariadb. Creation scripts are in /mariadb. Data is trored in /mariadb-data.
