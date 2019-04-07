@@ -43,7 +43,7 @@ func (r ArtistRepository) Save(tx *sql.Tx, artist NewArtist) (int64, error) {
 }
 
 func (r ArtistRepository) Delete(tx *sql.Tx, id int) error {
-	log.Debugf("ArtistRepository.Delete - ID = %s", id)
+	log.Debugf("ArtistRepository.Delete - ID = %d", id)
 
 	if _, err := tx.Exec("DELETE FROM artists WHERE id = ?", id); err != nil {
 		return errors.HandleError(log.Error, errors.New("ArtistRepository.Delete", "Database error", err))
