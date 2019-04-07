@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"github.com/asaskevich/govalidator"
 	"github.com/object-it/goserv/database"
-	"github.com/object-it/goserv/errors"
 	"github.com/object-it/goserv/net/xhttp"
+	"github.com/object-it/goserv/xerror"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
@@ -94,7 +94,7 @@ func (s *Server) getArtistByID(w http.ResponseWriter, r *http.Request) {
 
 	a, err := s.artistService.FindArtistById(id)
 	if err != nil {
-		switch errors.Cause(err) {
+		switch xerror.Cause(err) {
 		case sql.ErrNoRows:
 			http.NotFound(w, r)
 			return
@@ -147,7 +147,7 @@ func (s *Server) getArtistRecords(w http.ResponseWriter, r *http.Request) {
 
 	d, err := s.artistService.FindArtistDiscography(id)
 	if err != nil {
-		switch errors.Cause(err) {
+		switch xerror.Cause(err) {
 		case sql.ErrNoRows:
 			http.NotFound(w, r)
 			return

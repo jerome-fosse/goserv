@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"github.com/object-it/goserv/errors"
+	"github.com/object-it/goserv/xerror"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -24,7 +24,7 @@ func (r ArtistRepository) FindArtistByID(id int) (*Artist, error) {
 	artist := new(Artist)
 	err := row.Scan(&artist.ID, &artist.Name, &artist.Country)
 	if err != nil {
-		return nil, errors.HandleError(log.Error, errors.New("ArtistRepository.FindArtistByID", "Error while reading data from db", err))
+		return nil, xerror.HandleError(log.Error, xerror.New("ArtistRepository.FindArtistByID", "Error while reading data from db", err))
 	}
 
 	return artist, nil
@@ -36,7 +36,7 @@ func (r ArtistRepository) Save(tx *sql.Tx, artist NewArtist) (int64, error) {
 
 	result, err := tx.Exec("INSERT INTO artists (name, country) VALUES (?, ?)", artist.Name, artist.Country)
 	if err != nil {
-		return -1, errors.HandleError(log.Error, errors.New("ArtistRepository.Save", fmt.Sprintf("Error while saving artist %v", artist), err))
+		return -1, xerror.HandleError(log.Error, xerror.New("ArtistRepository.Save", fmt.Sprintf("Error while saving artist %v", artist), err))
 	}
 
 	return result.LastInsertId() // err is always nil
@@ -46,7 +46,7 @@ func (r ArtistRepository) Delete(tx *sql.Tx, id int) error {
 	log.Debugf("ArtistRepository.Delete - ID = %d", id)
 
 	if _, err := tx.Exec("DELETE FROM artists WHERE id = ?", id); err != nil {
-		return errors.HandleError(log.Error, errors.New("ArtistRepository.Delete", "Database error", err))
+		return xerror.HandleError(log.Error, xerror.New("ArtistRepository.Delete", "Database error", err))
 	}
 
 	return nil
@@ -63,7 +63,7 @@ func (r ArtistRepository) FindArtistDiscography(id int) (*Discography, error) {
 		"WHERE a.id = ? "+
 		"ORDER BY r.year, r.id, t.number", id)
 	if err != nil {
-		return nil, errors.HandleError(log.Error, errors.New("ArtistRepository.FindArtistDiscography", "Database error", err))
+		return nil, xerror.HandleError(log.Error, xerror.New("ArtistRepository.FindArtistDiscography", "Database error", err))
 	}
 	defer rows.Close()
 
@@ -84,7 +84,7 @@ func (r ArtistRepository) parseArtistDiscography(rows *sql.Rows) (*Discography, 
 			&rId, &rTitle, &rYear, &rGenre, &rSupport, &rNbSupport, &rLabel, &rNbTracks,
 			&tId, &tNumber, &tTitle, &tLength, &tNbSupport)
 		if err != nil {
-			return nil, errors.HandleError(log.Error, errors.New("ArtistRepository.parseArtistDiscography", "Database error", err))
+			return nil, xerror.HandleError(log.Error, xerror.New("ArtistRepository.parseArtistDiscography", "Database error", err))
 		}
 
 		if record == nil || record.ID != rId {
@@ -101,12 +101,12 @@ func (r ArtistRepository) parseArtistDiscography(rows *sql.Rows) (*Discography, 
 
 	err := rows.Err()
 	if err != nil {
-		return nil, errors.HandleError(log.Error, errors.New("ArtistRepository.parseArtistDiscography", "Error while reading data from db", err))
+		return nil, xerror.HandleError(log.Error, xerror.New("ArtistRepository.parseArtistDiscography", "Error while reading data from db", err))
 	}
 
 	//noinspection ALL
 	if record == nil {
-		return nil, errors.HandleError(log.Error, errors.New("ArtistRepository.parseArtistDiscography", "Error while reading data from db", sql.ErrNoRows))
+		return nil, xerror.HandleError(log.Error, xerror.New("ArtistRepository.parseArtistDiscography", "Error while reading data from db", sql.ErrNoRows))
 	}
 
 	return &discography, nil

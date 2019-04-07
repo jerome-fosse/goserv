@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"github.com/object-it/goserv/errors"
+	"github.com/object-it/goserv/xerror"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -22,7 +22,7 @@ func (r RecordRepository) Save(tx *sql.Tx, idArtist int, record *NewRecord) (int
 	r1, err := tx.Exec("INSERT INTO records(title, id_artist, year, genre, support, nb_support, label) "+
 		"VALUES(?, ?, ?, ?, ?, ?, ?)", record.Title, idArtist, record.Year, record.Genre, record.Support, record.NbSupport, record.Label)
 	if err != nil {
-		return -1, errors.HandleError(log.Error, errors.New("RecordRepository.Save", "database error", err))
+		return -1, xerror.HandleError(log.Error, xerror.New("RecordRepository.Save", "database error", err))
 	}
 
 	idr, _ := r1.LastInsertId() // err toujours nil avec le driver mariadb
@@ -30,7 +30,7 @@ func (r RecordRepository) Save(tx *sql.Tx, idArtist int, record *NewRecord) (int
 		_, err := tx.Exec("INSERT INTO tracks (id_record, number, title, length) "+
 			"VALUES(?, ?, ?, ?)", idr, t.Number, t.Title, t.Length)
 		if err != nil {
-			return -1, errors.HandleError(log.Error, errors.New("RecordRepository.Save", "database error", err))
+			return -1, xerror.HandleError(log.Error, xerror.New("RecordRepository.Save", "database error", err))
 		}
 	}
 
@@ -45,7 +45,7 @@ func (r RecordRepository) ExistRecordByArtistIdAndTitle(idArtist int, title stri
 	row := r.db.QueryRow(" SELECT count(*) FROM records WHERE id_artist = ? AND title = ?", idArtist, title)
 	err := row.Scan(&nb)
 	if err != nil {
-		return true, errors.HandleError(log.Error, errors.New("RecordRepository.ExistRecordByArtistIdAndTitle", "Database error", err))
+		return true, xerror.HandleError(log.Error, xerror.New("RecordRepository.ExistRecordByArtistIdAndTitle", "Database error", err))
 	}
 
 	return nb > 0, nil
@@ -62,7 +62,7 @@ func (r RecordRepository) FindRecordByID(id int) (*Record, error) {
 			"WHERE rec.id = ? "+
 			"ORDER BY tra.number ASC", id)
 	if err != nil {
-		return nil, errors.HandleError(log.Error, errors.New("RecordRepository.FindRecordByID", "Database error", err))
+		return nil, xerror.HandleError(log.Error, xerror.New("RecordRepository.FindRecordByID", "Database error", err))
 	}
 	defer rows.Close()
 
@@ -74,7 +74,7 @@ func (r RecordRepository) Delete(tx *sql.Tx, id int) error {
 	log.Debugf("RecordRepository.Delete - ID = %d", id)
 
 	if _, err := tx.Exec("DELETE FROM records WHERE id = ?", id); err != nil {
-		return errors.HandleError(log.Error, errors.New("RecordRepository.Delete", "Database error", err))
+		return xerror.HandleError(log.Error, xerror.New("RecordRepository.Delete", "Database error", err))
 	}
 
 	return nil
@@ -89,19 +89,19 @@ func (r RecordRepository) parseRowsAsRecord(rows *sql.Rows) (*Record, error) {
 		track := new(Track)
 		if err := rows.Scan(&record.ID, &record.Title, &record.Year, &record.Genre, &record.Support, &record.NbSupport, &record.Label,
 			&track.ID, &track.Number, &track.Title, &track.Length); err != nil {
-			return nil, errors.HandleError(log.Error, errors.New("RecordRepository.parseRowsAsRecord", "Error while reading data from db", err))
+			return nil, xerror.HandleError(log.Error, xerror.New("RecordRepository.parseRowsAsRecord", "Error while reading data from db", err))
 		}
 		tracks = append(tracks, *track)
 		count++
 	}
 
 	if count == 0 {
-		return nil, errors.HandleError(log.Error, errors.New("RecordRepository.parseRowsAsRecord", "Error while reading data from db", sql.ErrNoRows))
+		return nil, xerror.HandleError(log.Error, xerror.New("RecordRepository.parseRowsAsRecord", "Error while reading data from db", sql.ErrNoRows))
 	}
 
 	err := rows.Err()
 	if err != nil {
-		return nil, errors.HandleError(log.Error, errors.New("RecordRepository.parseRowsAsRecord", "Error while reading data from db", err))
+		return nil, xerror.HandleError(log.Error, xerror.New("RecordRepository.parseRowsAsRecord", "Error while reading data from db", err))
 	}
 
 	record.Tracks = tracks

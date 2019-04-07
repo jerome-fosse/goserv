@@ -3,7 +3,7 @@ package service
 import (
 	"database/sql"
 	"github.com/object-it/goserv/database"
-	"github.com/object-it/goserv/errors"
+	"github.com/object-it/goserv/xerror"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -26,7 +26,7 @@ func (s ArtistService) SaveNewArtist(a *database.NewArtist) (int64, error) {
 
 	tx, err := s.db.Begin()
 	if err != nil {
-		return -1, errors.HandleError(log.Error, errors.New("ArtistService.SaveNewArtist", "Database error", err))
+		return -1, xerror.HandleError(log.Error, xerror.New("ArtistService.SaveNewArtist", "Database error", err))
 	}
 
 	id, err := s.repository.Save(tx, *a)
@@ -36,7 +36,7 @@ func (s ArtistService) SaveNewArtist(a *database.NewArtist) (int64, error) {
 	}
 
 	if err = tx.Commit(); err != nil {
-		return -1, errors.HandleError(log.Error, errors.New("ArtistService.SaveNewArtist", "Database error", err))
+		return -1, xerror.HandleError(log.Error, xerror.New("ArtistService.SaveNewArtist", "Database error", err))
 	}
 
 	return id, nil
@@ -47,7 +47,7 @@ func (s ArtistService) DeleteArtist(id int) error {
 
 	tx, err := s.db.Begin()
 	if err != nil {
-		return errors.HandleError(log.Error, errors.New("ArtistService.DeleteArtist", "Database error", err))
+		return xerror.HandleError(log.Error, xerror.New("ArtistService.DeleteArtist", "Database error", err))
 
 	}
 
@@ -57,7 +57,7 @@ func (s ArtistService) DeleteArtist(id int) error {
 	}
 
 	if err := tx.Commit(); err != nil {
-		return errors.HandleError(log.Error, errors.New("ArtistService.DeleteArtist", "Database error", err))
+		return xerror.HandleError(log.Error, xerror.New("ArtistService.DeleteArtist", "Database error", err))
 	}
 
 	return nil

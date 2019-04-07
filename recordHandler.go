@@ -3,8 +3,8 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/object-it/goserv/errors"
 	"github.com/object-it/goserv/net/xhttp"
+	"github.com/object-it/goserv/xerror"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -34,7 +34,7 @@ func (s *Server) getRecordByID(w http.ResponseWriter, r *http.Request) {
 
 	record, err := s.recordService.FindRecordByID(id)
 	if err != nil {
-		switch errors.Cause(err) {
+		switch xerror.Cause(err) {
 		case sql.ErrNoRows:
 			http.NotFound(w, r)
 			return
