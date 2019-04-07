@@ -11,12 +11,12 @@ type ArtistRepository struct {
 	db *sql.DB
 }
 
-// NewArtistRepository create a new ArtistRepository
+// NewArtistRepository créé un nouveau repository
 func NewArtistRepository(db *sql.DB) *ArtistRepository {
 	return &ArtistRepository{db}
 }
 
-// FindArtistByID does what it says
+// FindArtistByID recherche un artiste par son ID
 func (r ArtistRepository) FindArtistByID(id int) (*Artist, error) {
 	log.Debugf("ArtistRepository.FindArtistByID - ID = %d", id)
 
@@ -30,7 +30,7 @@ func (r ArtistRepository) FindArtistByID(id int) (*Artist, error) {
 	return artist, nil
 }
 
-// Save save an artist in the db
+// Save sauvegarde (INSERT) un artiste en base de donnée
 func (r ArtistRepository) Save(tx *sql.Tx, artist NewArtist) (int64, error) {
 	log.Debugf("ArtistRepository.Save - %v", artist)
 
@@ -42,6 +42,17 @@ func (r ArtistRepository) Save(tx *sql.Tx, artist NewArtist) (int64, error) {
 	return result.LastInsertId() // err is always nil
 }
 
+func (r ArtistRepository) Delete(tx *sql.Tx, id int) error {
+	log.Debugf("ArtistRepository.Delete - ID = %s", id)
+
+	if _, err := tx.Exec("DELETE FROM artists WHERE id = ?", id); err != nil {
+		return errors.HandleError(log.Error, errors.New("ArtistRepository.Delete", "Database error", err))
+	}
+
+	return nil
+}
+
+// FindArtistDiscography charge la discographie d'un artiste
 func (r ArtistRepository) FindArtistDiscography(id int) (*Discography, error) {
 	log.Debugf("ArtistRepository.FindArtistDiscography - Artist ID = %d", id)
 

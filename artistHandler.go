@@ -27,6 +27,8 @@ func (s *Server) HandleArtistByID(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		s.getArtistByID(w, r)
+	case http.MethodDelete:
+		s.deleteArtistByID(w, r)
 	default:
 		xhttp.MethodNotAllowed(w)
 	}
@@ -110,6 +112,25 @@ func (s *Server) getArtistByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	xhttp.OK(xhttp.Response{Msg: bytes, ContentType: xhttp.ContentTypeApplicationJson}, w)
+}
+
+// DELETE /artist/{id}
+func (s *Server) deleteArtistByID(w http.ResponseWriter, r *http.Request) {
+	var id int
+
+	if err := xhttp.ReadRequestVar(r, "id", &id); err != nil {
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
+		return
+	}
+
+	log.Infof("ArtistHandler.deleteArtistByID - Artist ID = %d", id)
+
+	if err := s.artistService.DeleteArtist(id); err != nil {
+		xhttp.BadRequestWithResponse(xhttp.Response{Msg: []byte(err.Error()), ContentType: xhttp.ContentTypeTextPlain}, w)
+		return
+	}
+
+	xhttp.NoContent(w)
 }
 
 // GET /artist/{id}/records

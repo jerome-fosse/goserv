@@ -42,6 +42,27 @@ func (s ArtistService) SaveNewArtist(a *database.NewArtist) (int64, error) {
 	return id, nil
 }
 
+func (s ArtistService) DeleteArtist(id int) error {
+	log.Debugf("ArtistService.DeleteArtist - ID = %d", id)
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return errors.HandleError(log.Error, errors.New("ArtistService.DeleteArtist", "Database error", err))
+
+	}
+
+	if err := s.repository.Delete(tx, id); err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return errors.HandleError(log.Error, errors.New("ArtistService.DeleteArtist", "Database error", err))
+	}
+
+	return nil
+}
+
 func (s ArtistService) FindArtistDiscography(id int) (*database.Discography, error) {
 	log.Debugf("ArtistService.FindArtistDiscography - ID = %d", id)
 	return s.repository.FindArtistDiscography(id)

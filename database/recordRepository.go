@@ -16,7 +16,7 @@ func NewRecordRepository(db *sql.DB) *RecordRepository {
 	return &RecordRepository{db}
 }
 
-func (r *RecordRepository) Save(tx *sql.Tx, idArtist int, record *NewRecord) (int64, error) {
+func (r RecordRepository) Save(tx *sql.Tx, idArtist int, record *NewRecord) (int64, error) {
 	log.Debugf("RecordRepository.Save - ID = %d, Record = %s", idArtist, record)
 
 	r1, err := tx.Exec("INSERT INTO records(title, id_artist, year, genre, support, nb_support, label) "+
@@ -38,7 +38,7 @@ func (r *RecordRepository) Save(tx *sql.Tx, idArtist int, record *NewRecord) (in
 }
 
 // ExistRecordByArtistIdAndTitle indique si il existe déjà un album du même titre pour le même artiste.
-func (r *RecordRepository) ExistRecordByArtistIdAndTitle(idArtist int, title string) (bool, error) {
+func (r RecordRepository) ExistRecordByArtistIdAndTitle(idArtist int, title string) (bool, error) {
 	log.Debugf("RecordRepository.ExistRecordByArtistIdAndTitle - ID = %d, Title = %s", idArtist, title)
 
 	var nb int64
@@ -52,7 +52,7 @@ func (r *RecordRepository) ExistRecordByArtistIdAndTitle(idArtist int, title str
 }
 
 // FindRecordByID retour l'artiste dont l'id est passé en paramètre
-func (r *RecordRepository) FindRecordByID(id int) (*Record, error) {
+func (r RecordRepository) FindRecordByID(id int) (*Record, error) {
 	log.Debugf("RecordRepository.FindRecordByID - ID = %d", id)
 
 	rows, err := r.db.Query(
@@ -70,7 +70,7 @@ func (r *RecordRepository) FindRecordByID(id int) (*Record, error) {
 }
 
 // Delete supprimer un record et toutes ses tracks
-func (r *RecordRepository) Delete(tx *sql.Tx, id int) error {
+func (r RecordRepository) Delete(tx *sql.Tx, id int) error {
 	log.Debugf("RecordRepository.Delete - ID = %d", id)
 
 	if _, err := tx.Exec("DELETE FROM records WHERE id = ?", id); err != nil {
@@ -80,7 +80,7 @@ func (r *RecordRepository) Delete(tx *sql.Tx, id int) error {
 	return nil
 }
 
-func (r *RecordRepository) parseRowsAsRecord(rows *sql.Rows) (*Record, error) {
+func (r RecordRepository) parseRowsAsRecord(rows *sql.Rows) (*Record, error) {
 	record := new(Record)
 	tracks := make([]Track, 0)
 	var count int
