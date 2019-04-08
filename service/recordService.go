@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/object-it/goserv/database"
-	"github.com/object-it/goserv/xerror"
+	"github.com/object-it/goserv/xerrors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -29,16 +29,16 @@ func (s RecordService) DeleteRecord(id int) error {
 
 	tx, err := s.db.Begin()
 	if err != nil {
-		return xerror.HandleError(log.Error, xerror.New("RecordService.DeleteRecord", "Database error", err))
+		return xerrors.HandleError(log.Error, xerrors.New("RecordService.DeleteRecord", "Database error", err))
 	}
 
 	if err := s.recordRepo.Delete(tx, id); err != nil {
 		_ = tx.Rollback()
-		return xerror.HandleError(log.Error, xerror.New("RecordService.DeleteRecord", "Database error", err))
+		return xerrors.HandleError(log.Error, xerrors.New("RecordService.DeleteRecord", "Database error", err))
 	}
 
 	if err := tx.Commit(); err != nil {
-		return xerror.HandleError(log.Error, xerror.New("RecordService.DeleteRecord", "Database error", err))
+		return xerrors.HandleError(log.Error, xerrors.New("RecordService.DeleteRecord", "Database error", err))
 	}
 
 	return nil
@@ -58,13 +58,13 @@ func (s RecordService) SaveRecordForArtist(idArtist int, record *database.NewRec
 	}
 
 	if exist {
-		return -1, xerror.HandleError(log.Error, xerror.NewRootError("RecordService.SaveRecordForArtist",
+		return -1, xerrors.HandleError(log.Error, xerrors.NewRootError("RecordService.SaveRecordForArtist",
 			fmt.Sprintf("The record %s already exist for artit with id %d", record.Title, idArtist)))
 	}
 
 	tx, err := s.db.Begin()
 	if err != nil {
-		return -1, xerror.HandleError(log.Error, xerror.New("RecordService.SaveRecordForArtist", "Database error", err))
+		return -1, xerrors.HandleError(log.Error, xerrors.New("RecordService.SaveRecordForArtist", "Database error", err))
 	}
 
 	idr, err := s.recordRepo.Save(tx, idArtist, record)
@@ -74,7 +74,7 @@ func (s RecordService) SaveRecordForArtist(idArtist int, record *database.NewRec
 	}
 
 	if err := tx.Commit(); err != nil {
-		return -1, xerror.HandleError(log.Error, xerror.New("RecordService.SaveRecordForArtist", "Database error", err))
+		return -1, xerrors.HandleError(log.Error, xerrors.New("RecordService.SaveRecordForArtist", "Database error", err))
 	}
 
 	return idr, nil

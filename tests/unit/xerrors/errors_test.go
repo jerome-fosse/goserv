@@ -1,15 +1,15 @@
-package xerror
+package xerrors
 
 import (
 	"errors"
-	"github.com/object-it/goserv/xerror"
+	"github.com/object-it/goserv/xerrors"
 	"testing"
 )
 
 func TestErrorHasRootCause(t *testing.T) {
-	err := xerror.New("caller", "error message", errors.New("my root cause"))
+	err := xerrors.New("caller", "error message", errors.New("my root cause"))
 
-	cause := xerror.Cause(err)
+	cause := xerrors.Cause(err)
 
 	if cause == nil || cause.Error() != "my root cause" {
 		t.Error("No Root Cause detected !!!")
@@ -17,7 +17,7 @@ func TestErrorHasRootCause(t *testing.T) {
 }
 
 func TestErrorStringOutput(t *testing.T) {
-	err := xerror.New("caller", "error message", errors.New("my root cause"))
+	err := xerrors.New("caller", "error message", errors.New("my root cause"))
 
 	if err.Error() != "caller : error message - Caused by : my root cause" {
 		t.Error("Bad error output !!!")
