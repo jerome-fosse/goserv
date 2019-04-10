@@ -18,7 +18,7 @@ func TestGetArtistByID_ShouldReturnAnArtist_WhenArtistIsInDatabase(t *testing.T)
 	cols := []string{"id", "name", "country"}
 	rows := sqlmock.NewRows(cols)
 	rows = rows.AddRow(1, "Sleep", "USA")
-	mock.ExpectQuery("SELECT id, name, country FROM artists WHERE id = ?").WithArgs(1).WillReturnRows(rows)
+	mock.ExpectQuery(database.SelectArtistById).WithArgs(1).WillReturnRows(rows)
 
 	repo := database.NewArtistRepository(db)
 	artist, err := repo.FindArtistByID(1)
@@ -37,7 +37,7 @@ func TestGetArtistByID_ShouldThrowAnError_WhenArtistIsNotInDatabase(t *testing.T
 	}
 	defer db.Close()
 
-	mock.ExpectQuery("SELECT id, name, country FROM artists WHERE id = ?").WithArgs(sqlmock.AnyArg()).WillReturnError(sql.ErrNoRows)
+	mock.ExpectQuery(database.SelectArtistById).WithArgs(sqlmock.AnyArg()).WillReturnError(sql.ErrNoRows)
 
 	repo := database.NewArtistRepository(db)
 	artist, err := repo.FindArtistByID(2)

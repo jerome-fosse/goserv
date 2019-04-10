@@ -20,7 +20,7 @@ func NewArtistRepository(db *sql.DB) *ArtistRepository {
 func (r ArtistRepository) FindArtistByID(id int) (*Artist, error) {
 	log.Debugf("ArtistRepository.FindArtistByID - ID = %d", id)
 
-	row := r.db.QueryRow("SELECT id, name, country FROM artists WHERE id = ?", id)
+	row := r.db.QueryRow(SelectArtistById, id)
 	artist := new(Artist)
 	err := row.Scan(&artist.ID, &artist.Name, &artist.Country)
 	if err != nil {
@@ -34,7 +34,7 @@ func (r ArtistRepository) FindArtistByID(id int) (*Artist, error) {
 func (r ArtistRepository) Save(tx *sql.Tx, artist NewArtist) (int64, error) {
 	log.Debugf("ArtistRepository.Save - %v", artist)
 
-	result, err := tx.Exec("INSERT INTO artists (name, country) VALUES (?, ?)", artist.Name, artist.Country)
+	result, err := tx.Exec(InsertIntoArtists, artist.Name, artist.Country)
 	if err != nil {
 		return -1, xerrors.HandleError(log.Error, xerrors.New("ArtistRepository.Save", fmt.Sprintf("Error while saving artist %v", artist), err))
 	}
@@ -45,7 +45,7 @@ func (r ArtistRepository) Save(tx *sql.Tx, artist NewArtist) (int64, error) {
 func (r ArtistRepository) Delete(tx *sql.Tx, id int) error {
 	log.Debugf("ArtistRepository.Delete - ID = %d", id)
 
-	if _, err := tx.Exec("DELETE FROM artists WHERE id = ?", id); err != nil {
+	if _, err := tx.Exec(DeleteArtistById, id); err != nil {
 		return xerrors.HandleError(log.Error, xerrors.New("ArtistRepository.Delete", "Database error", err))
 	}
 
@@ -56,12 +56,7 @@ func (r ArtistRepository) Delete(tx *sql.Tx, id int) error {
 func (r ArtistRepository) FindArtistDiscography(id int) (*Discography, error) {
 	log.Debugf("ArtistRepository.FindArtistDiscography - Artist ID = %d", id)
 
-	rows, err := r.db.Query("SELECT a.id, a.name, a.country, "+
-		"r.id as r_id, r.title as r_title, r.year, r.genre, r.support, r.nb_support as r_nb_support, r.label, (select count(*) from tracks where id_record = r.id) as nb_tracks,"+
-		"t.id as t_id, t.number, t.title as t_title, t.length, t.nb_support as t_nb_support "+
-		"FROM artists a INNER JOIN records r ON a.id = r.id_artist INNER JOIN tracks t ON r.id = t.id_record "+
-		"WHERE a.id = ? "+
-		"ORDER BY r.year, r.id, t.number", id)
+	rows, err := r.db.Query(SelectArtistWithDiscography, id)
 	if err != nil {
 		return nil, xerrors.HandleError(log.Error, xerrors.New("ArtistRepository.FindArtistDiscography", "Database error", err))
 	}

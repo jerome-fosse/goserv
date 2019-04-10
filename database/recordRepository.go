@@ -19,16 +19,14 @@ func NewRecordRepository(db *sql.DB) *RecordRepository {
 func (r RecordRepository) Save(tx *sql.Tx, idArtist int, record *NewRecord) (int64, error) {
 	log.Debugf("RecordRepository.Save - ID = %d, Record = %s", idArtist, record)
 
-	r1, err := tx.Exec("INSERT INTO records(title, id_artist, year, genre, support, nb_support, label) "+
-		"VALUES(?, ?, ?, ?, ?, ?, ?)", record.Title, idArtist, record.Year, record.Genre, record.Support, record.NbSupport, record.Label)
+	r1, err := tx.Exec(InsertIntoRecords, record.Title, idArtist, record.Year, record.Genre, record.Support, record.NbSupport, record.Label)
 	if err != nil {
 		return -1, xerrors.HandleError(log.Error, xerrors.New("RecordRepository.Save", "database error", err))
 	}
 
 	idr, _ := r1.LastInsertId() // err toujours nil avec le driver mariadb
 	for _, t := range record.Tracks {
-		_, err := tx.Exec("INSERT INTO tracks (id_record, number, title, length) "+
-			"VALUES(?, ?, ?, ?)", idr, t.Number, t.Title, t.Length)
+		_, err := tx.Exec(InsertIntoTracks, idr, t.Number, t.Title, t.Length)
 		if err != nil {
 			return -1, xerrors.HandleError(log.Error, xerrors.New("RecordRepository.Save", "database error", err))
 		}
@@ -55,12 +53,7 @@ func (r RecordRepository) ExistRecordByArtistIdAndTitle(idArtist int, title stri
 func (r RecordRepository) FindRecordByID(id int) (*Record, error) {
 	log.Debugf("RecordRepository.FindRecordByID - ID = %d", id)
 
-	rows, err := r.db.Query(
-		"SELECT rec.id, rec.title, rec.year, rec.genre, rec.support, rec.nb_support, rec.label, "+
-			"tra.id as id_track, tra.number, tra.title, tra.length "+
-			"FROM records rec LEFT JOIN tracks tra on rec.id = tra.id_record "+
-			"WHERE rec.id = ? "+
-			"ORDER BY tra.number ASC", id)
+	rows, err := r.db.Query(SelectRecordWithTracksByIdRecord, id)
 	if err != nil {
 		return nil, xerrors.HandleError(log.Error, xerrors.New("RecordRepository.FindRecordByID", "Database error", err))
 	}
@@ -73,7 +66,7 @@ func (r RecordRepository) FindRecordByID(id int) (*Record, error) {
 func (r RecordRepository) Delete(tx *sql.Tx, id int) error {
 	log.Debugf("RecordRepository.Delete - ID = %d", id)
 
-	if _, err := tx.Exec("DELETE FROM records WHERE id = ?", id); err != nil {
+	if _, err := tx.Exec(DeleteRecordById, id); err != nil {
 		return xerrors.HandleError(log.Error, xerrors.New("RecordRepository.Delete", "Database error", err))
 	}
 
